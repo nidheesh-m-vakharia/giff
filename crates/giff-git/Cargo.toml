@@ -1,0 +1,11 @@
+[package]
+name = "giff-git"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+giff-core = { path = "../giff-core" }
+thiserror = "1"
+
+[dev-dependencies]
+tempfile = "3"

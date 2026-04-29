@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "crates/giff-core",
+    "crates/giff-git",
+    "crates/giff-github",
+    "crates/giff-cli",
+    "crates/giff-wasm",
+]
+resolver = "2"

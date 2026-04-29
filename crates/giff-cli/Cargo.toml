@@ -1,0 +1,27 @@
+[package]
+name = "giff-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "giff"
+path = "src/main.rs"
+
+[dependencies]
+giff-core = { path = "../giff-core" }
+giff-git = { path = "../giff-git" }
+giff-github = { path = "../giff-github" }
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+crossterm = "0.27"
+dirs = "5"
+ratatui = "0.26"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
