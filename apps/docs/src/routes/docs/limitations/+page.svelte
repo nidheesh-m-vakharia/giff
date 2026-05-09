@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-  <title>Limitations · giff</title>
+  <title>Limitations · giff stack</title>
 </svelte:head>
 
 <h1>Limitations</h1>
@@ -19,7 +19,7 @@
 
 <h3>You don't use GitHub.</h3>
 <p>
-  <span class="font-mono">giff</span> is GitHub-specific. GitHub Enterprise works (set the
+  <span class="font-mono">giff stack</span> is GitHub-specific. GitHub Enterprise works (set the
   <code>base_url</code> in config), but GitLab, Bitbucket, Gitea, and friends don't. The forge layer is
   abstracted (<code>ForgeBackend</code> trait) but only one impl exists. Adding GitLab is doable —
   see the <a href="/docs/contributing">contributing page</a>.
@@ -27,7 +27,7 @@
 
 <h3>You don't already work in stacked PRs.</h3>
 <p>
-  This is a workflow change, not a tool change. <span class="font-mono">giff</span> makes stacked
+  This is a workflow change, not a tool change. <span class="font-mono">giff stack</span> makes stacked
   diffs <em>easier</em>, but if your team's review process assumes one big PR per feature, dropping
   in a stack tool won't change that. The first cultural conversation is "we're going to start doing
   smaller PRs" — the tool is downstream of that decision.
@@ -35,14 +35,14 @@
 
 <h3>You want a polished, shrink-wrapped product.</h3>
 <p>
-  <span class="font-mono">giff</span> is alpha software. Bugs exist. Edge cases will surprise you.
+  <span class="font-mono">giff stack</span> is alpha software. Bugs exist. Edge cases will surprise you.
   No prebuilt binaries (yet). No published Docker image (yet). If you want the polished version,
   use Graphite — they have ~50 people doing it full-time. We don't.
 </p>
 
 <h3>You want jujutsu / Sapling / virtual-branch semantics.</h3>
 <p>
-  Different abstraction. <span class="font-mono">giff</span> uses real git branches, real merge
+  Different abstraction. <span class="font-mono">giff stack</span> uses real git branches, real merge
   commits, real PRs. If your mental model is "I work on multiple things in one tree and pick what
   to publish," GitButler or jj will fit you better.
 </p>

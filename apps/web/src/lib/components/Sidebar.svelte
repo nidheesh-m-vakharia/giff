@@ -10,6 +10,7 @@
   import { page } from '$app/stores';
   import { Settings as SettingsIcon, ChevronDown } from 'lucide-svelte';
   import { cn } from '$lib/utils';
+  import ThemeToggle from './ThemeToggle.svelte';
 
   const REPO_URL = 'https://github.com/nidheesh-m-vakharia/giff';
 
@@ -88,8 +89,8 @@
       href="/"
       class="flex items-center gap-3 font-semibold tracking-tight"
     >
-      <img src="/logo.svg" alt="giff" class="h-9 w-9 rounded-md shadow-sm" />
-      <span class="text-2xl">giff</span>
+      <img src="/logo.svg" alt="giff stack" class="h-9 w-9 rounded-md shadow-sm" />
+      <span class="text-2xl">giff stack</span>
     </a>
 
     <button
@@ -198,7 +199,7 @@
     {/if}
   </nav>
 
-  <!-- Footer: settings + source -->
+  <!-- Footer: settings + theme + source -->
   <div class="border-t px-4 py-3 flex items-center gap-1 text-sm">
     <a
       href="/?settings=1"
@@ -212,11 +213,14 @@
       <SettingsIcon class="h-4 w-4" />
       Settings
     </a>
+    <div class="ml-auto flex items-center">
+      <ThemeToggle />
+    </div>
     <a
       href={REPO_URL}
       target="_blank"
       rel="noopener"
-      class="ml-auto inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+      class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
       aria-label="Source on GitHub"
     >
       <svg

@@ -4,13 +4,13 @@
 </script>
 
 <svelte:head>
-  <title>Installation · giff</title>
+  <title>Installation · giff stack</title>
 </svelte:head>
 
 <h1>Installation</h1>
 
 <p>
-  <span class="font-mono">giff</span> is three independent pieces. Most people only need the CLI.
+  <span class="font-mono">giff stack</span> is three independent pieces. Most people only need the CLI.
   Add the web dashboard and the runner if you want them.
 </p>
 

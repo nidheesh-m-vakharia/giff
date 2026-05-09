@@ -5,13 +5,13 @@
 </script>
 
 <svelte:head>
-  <title>Docs · giff</title>
+  <title>Docs · giff stack</title>
 </svelte:head>
 
-<h1>giff documentation</h1>
+<h1>giff stack documentation</h1>
 
 <p class="lead text-muted-foreground">
-  <span class="font-mono">giff</span> is an open-source tool for stacked-diff workflows on GitHub.
+  <span class="font-mono">giff stack</span> is an open-source tool for stacked-diff workflows on GitHub.
   This is the complete reference: concepts, commands, install, contribution, and an honest section
   on what it doesn't do.
 </p>
@@ -30,7 +30,7 @@
 <h2>Three components</h2>
 
 <p>
-  <span class="font-mono">giff</span> has three pieces. They're independently useful — install only
+  <span class="font-mono">giff stack</span> has three pieces. They're independently useful — install only
   what you need.
 </p>
 

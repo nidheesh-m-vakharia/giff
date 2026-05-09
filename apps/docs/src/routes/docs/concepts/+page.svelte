@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-  <title>Concepts · giff</title>
+  <title>Concepts · giff stack</title>
 </svelte:head>
 
 <h1>Concepts &amp; first principles</h1>

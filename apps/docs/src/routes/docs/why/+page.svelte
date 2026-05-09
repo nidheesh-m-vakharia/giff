@@ -4,14 +4,14 @@
 </script>
 
 <svelte:head>
-  <title>Why we made this · giff</title>
+  <title>Why we made this · giff stack</title>
 </svelte:head>
 
 <h1>Why we made this</h1>
 
 <p class="lead text-muted-foreground">
   Stacked diffs aren't a new idea. The reason this project exists is that the tooling around it is
-  either closed-source SaaS or fragmented. <span class="font-mono">giff</span> is an attempt at
+  either closed-source SaaS or fragmented. <span class="font-mono">giff stack</span> is an attempt at
   one open, self-hostable, opinionated implementation.
 </p>
 
@@ -60,7 +60,7 @@
 <p>
   Closest match. Has a free open-source CLI (<code>gt</code>) and a paid hosted SaaS for the dashboard,
   reviewer pad, and merge queue. We borrowed many primitives from their model. The gaps that
-  motivated <span class="font-mono">giff</span>:
+  motivated <span class="font-mono">giff stack</span>:
 </p>
 
 <ul>
@@ -72,7 +72,7 @@
 <h3>ghstack</h3>
 
 <p>
-  Meta's open-source CLI. Closest in spirit; <span class="font-mono">giff</span>'s data model
+  Meta's open-source CLI. Closest in spirit; <span class="font-mono">giff stack</span>'s data model
   borrows from it. ghstack is excellent at the CLI layer and stops there — no dashboard, no
   reconciliation service. If the CLI is all you want, ghstack is a fine choice.
 </p>
@@ -91,7 +91,7 @@
   changes simultaneously in one working copy, "publish" them as separate PRs whenever. <span
   class="font-mono">giff</span> does <em>real branches in a stack</em> — one logical change broken
   into reviewable layers. Different problems. Use GitButler if "I'm juggling three independent
-  things at once" is your pain; use <span class="font-mono">giff</span> if "I have one big feature
+  things at once" is your pain; use <span class="font-mono">giff stack</span> if "I have one big feature
   to break up" is.
 </p>
 
@@ -99,7 +99,7 @@
 
 <p>
   PR automation engine — handles auto-merge, merge queues, branch protection rules, etc. Doesn't
-  manage stacks. The <span class="font-mono">giff</span> runner overlaps with Mergify's auto-merge
+  manage stacks. The <span class="font-mono">giff stack</span> runner overlaps with Mergify's auto-merge
   feature for the specific case of "merge the bottom of a stack." For anything more complex,
   Mergify is the better tool.
 </p>

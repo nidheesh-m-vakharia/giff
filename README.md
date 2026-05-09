@@ -1,4 +1,4 @@
-# giff
+# giff stack
 
 Stacked diffs for GitHub. Work on multiple dependent pull requests as a linear stack of branches, with automatic PR management and conflict-aware rebasing.
 

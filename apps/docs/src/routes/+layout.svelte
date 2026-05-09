@@ -2,9 +2,8 @@
   import '../app.css';
   import { REPO_URL } from '$lib/utils';
   import { page } from '$app/stores';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 
-  // Header / footer chrome belongs to the docs pages. The landing page is a single hero —
-  // let it own the full viewport without competing with site nav.
   $: isHome = $page.url.pathname === '/';
   $: onDocs = $page.url.pathname.startsWith('/docs');
 </script>
@@ -14,8 +13,8 @@
     <header class="sticky top-0 z-30 backdrop-blur bg-background/80">
       <div class="mx-auto flex h-14 items-center gap-6 px-6 max-w-6xl">
         <a href="/" class="flex items-center gap-2.5 font-semibold tracking-tight">
-          <img src="/logo.svg" alt="giff" class="h-6 w-6 rounded-md shadow-sm" />
-          <span>giff</span>
+          <img src="/logo.svg" alt="giff stack" class="h-6 w-6 rounded-md shadow-sm" />
+          <span>giff stack</span>
         </a>
         <nav class="ml-auto flex items-center gap-5 text-sm">
           <a
@@ -46,18 +45,25 @@
             </svg>
             <span class="hidden sm:inline">GitHub</span>
           </a>
+          <ThemeToggle />
         </nav>
       </div>
     </header>
+  {:else}
+    <div class="absolute right-4 top-4 z-30">
+      <ThemeToggle />
+    </div>
   {/if}
 
   <slot />
 
   {#if !isHome}
     <footer class="mt-20">
-      <div class="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground/70 flex items-center justify-between gap-4">
+      <div
+        class="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground/70 flex items-center justify-between gap-4"
+      >
         <span>
-          <span class="font-mono">giff</span> · open source · MIT
+          <span class="font-mono">giff stack</span> · open source · MIT
         </span>
         <a href={REPO_URL} target="_blank" rel="noopener" class="hover:text-foreground">
           Source

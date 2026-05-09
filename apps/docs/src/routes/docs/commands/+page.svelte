@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-  <title>Commands · giff</title>
+  <title>Commands · giff stack</title>
 </svelte:head>
 
 <h1>Commands</h1>

@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-  <title>Contributing · giff</title>
+  <title>Contributing · giff stack</title>
 </svelte:head>
 
 <h1>Contributing</h1>
