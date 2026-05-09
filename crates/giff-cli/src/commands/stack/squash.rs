@@ -42,7 +42,8 @@ pub fn run(branch: &str) -> Result<()> {
         anyhow::bail!(
             "parent frame `{}` has no commits to absorb a squash. Commit on the parent first, \
              or drop this frame instead with `giff stack drop {}`.",
-            parent_branch, branch
+            parent_branch,
+            branch
         );
     }
     let child_count = commits_ahead(&backend, branch, &parent_branch)?;

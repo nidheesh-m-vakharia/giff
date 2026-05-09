@@ -49,11 +49,7 @@ pub fn group(pulls: Vec<PullSnapshot>) -> GroupedStacks {
     let mut ungrouped: Vec<PullSnapshot> = Vec::new();
 
     for pr in pulls {
-        match pr
-            .body
-            .as_deref()
-            .and_then(RemoteStackMeta::from_pr_body)
-        {
+        match pr.body.as_deref().and_then(RemoteStackMeta::from_pr_body) {
             Some(meta) => {
                 buckets
                     .entry(meta.stack_id.0.clone())
@@ -71,8 +67,18 @@ pub fn group(pulls: Vec<PullSnapshot>) -> GroupedStacks {
 
     // Most-recently-touched stacks first (by max updated_at across frames).
     stacks.sort_by(|a, b| {
-        let max_a = a.frames.iter().map(|f| f.pr.updated_at.as_str()).max().unwrap_or("");
-        let max_b = b.frames.iter().map(|f| f.pr.updated_at.as_str()).max().unwrap_or("");
+        let max_a = a
+            .frames
+            .iter()
+            .map(|f| f.pr.updated_at.as_str())
+            .max()
+            .unwrap_or("");
+        let max_b = b
+            .frames
+            .iter()
+            .map(|f| f.pr.updated_at.as_str())
+            .max()
+            .unwrap_or("");
         max_b.cmp(max_a)
     });
 
@@ -81,8 +87,10 @@ pub fn group(pulls: Vec<PullSnapshot>) -> GroupedStacks {
 
 fn build_stack(id: StackId, mut frames: Vec<Frame>) -> Stack {
     // Index by frame_id once.
-    let by_id: HashMap<FrameId, &Frame> =
-        frames.iter().map(|f| (f.meta.frame_id.clone(), f)).collect();
+    let by_id: HashMap<FrameId, &Frame> = frames
+        .iter()
+        .map(|f| (f.meta.frame_id.clone(), f))
+        .collect();
 
     // Children buckets, keyed by parent frame_id. None goes to "roots".
     let mut children_of: HashMap<FrameId, Vec<FrameId>> = HashMap::new();
@@ -136,12 +144,10 @@ fn build_stack(id: StackId, mut frames: Vec<Frame>) -> Stack {
         .map(|id| walk(id, &by_id, &children_of, &mut topo))
         .collect();
 
-    let is_linear =
-        roots.len() == 1 && children_of.values().all(|kids| kids.len() <= 1);
+    let is_linear = roots.len() == 1 && children_of.values().all(|kids| kids.len() <= 1);
 
     // Re-order `frames` to match topological order.
-    let pos: HashMap<&FrameId, usize> =
-        topo.iter().enumerate().map(|(i, id)| (id, i)).collect();
+    let pos: HashMap<&FrameId, usize> = topo.iter().enumerate().map(|(i, id)| (id, i)).collect();
     frames.sort_by_key(|f| pos.get(&f.meta.frame_id).copied().unwrap_or(usize::MAX));
 
     let total = frames.first().map(|f| f.meta.total).unwrap_or(frames.len());
@@ -176,7 +182,13 @@ mod tests {
         }
     }
 
-    fn block(stack: &str, frame: &str, parent: Option<&str>, position: usize, total: usize) -> String {
+    fn block(
+        stack: &str,
+        frame: &str,
+        parent: Option<&str>,
+        position: usize,
+        total: usize,
+    ) -> String {
         let parent = parent
             .map(|p| format!(r#""parent_frame_id":"{}","#, p))
             .unwrap_or_default();

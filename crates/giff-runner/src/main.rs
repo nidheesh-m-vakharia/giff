@@ -7,7 +7,10 @@ use tower_http::trace::TraceLayer;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 #[derive(Parser)]
-#[command(name = "giff-runner", about = "Stacked-diffs runner: webhooks + polling + auto-merge")]
+#[command(
+    name = "giff-runner",
+    about = "Stacked-diffs runner: webhooks + polling + auto-merge"
+)]
 struct Cli {
     /// Path to the TOML config file. Falls back to GIFF_RUNNER_CONFIG env var.
     #[arg(short, long)]
@@ -84,7 +87,11 @@ async fn main() -> Result<()> {
 
 fn init_tracing() {
     tracing_subscriber::registry()
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info,giff_runner=info,axum=info,tower_http=info")))
+        .with(
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                EnvFilter::new("info,giff_runner=info,axum=info,tower_http=info")
+            }),
+        )
         .with(fmt::layer().compact())
         .init();
 }

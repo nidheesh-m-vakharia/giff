@@ -44,15 +44,19 @@ fn run() -> Result<()> {
     match cli.command {
         Commands::Init => commands::init::run(),
         Commands::New { branch } => commands::new::run(&branch),
-        Commands::Publish { message, branch, all } => {
-            commands::publish::run(&message, branch.as_deref(), all)
-        }
+        Commands::Publish {
+            message,
+            branch,
+            all,
+        } => commands::publish::run(&message, branch.as_deref(), all),
         Commands::Checkout { target } => commands::checkout::run(&target),
         Commands::Next => commands::checkout::run_next(),
         Commands::Prev => commands::checkout::run_prev(),
-        Commands::Commit { message, amend, all } => {
-            commands::commit::run(message.as_deref(), amend, all)
-        }
+        Commands::Commit {
+            message,
+            amend,
+            all,
+        } => commands::commit::run(message.as_deref(), amend, all),
         Commands::Push => commands::push::run(),
         Commands::Sync { r#continue } => commands::sync::run(r#continue),
         Commands::Log { all } => commands::log::run(all),

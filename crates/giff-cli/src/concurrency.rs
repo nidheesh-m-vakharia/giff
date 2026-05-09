@@ -54,7 +54,9 @@ where
     for (i, r) in rx {
         buf[i] = Some(r);
     }
-    buf.into_iter().map(|x| x.expect("worker produced result")).collect()
+    buf.into_iter()
+        .map(|x| x.expect("worker produced result"))
+        .collect()
 }
 
 #[cfg(test)]

@@ -125,7 +125,8 @@ impl Db {
         // WAL is the right journaling mode for a server with concurrent reads + writes.
         conn.pragma_update(None, "journal_mode", "WAL")?;
         conn.pragma_update(None, "synchronous", "NORMAL")?;
-        conn.execute_batch(SCHEMA).context("running schema bootstrap")?;
+        conn.execute_batch(SCHEMA)
+            .context("running schema bootstrap")?;
         Ok(Self {
             conn: Arc::new(Mutex::new(conn)),
         })
@@ -316,16 +317,19 @@ impl Db {
             };
             let mut stmt = c.prepare(sql)?;
             let rows = stmt
-                .query_map(rusqlite::params_from_iter(args.iter().map(|a| a.as_ref())), |row| {
-                    Ok(Event {
-                        id: row.get(0)?,
-                        repo: row.get(1)?,
-                        pr_number: row.get::<_, Option<i64>>(2)?.map(|n| n as u64),
-                        kind: row.get(3)?,
-                        detail: row.get(4)?,
-                        at: row.get(5)?,
-                    })
-                })?
+                .query_map(
+                    rusqlite::params_from_iter(args.iter().map(|a| a.as_ref())),
+                    |row| {
+                        Ok(Event {
+                            id: row.get(0)?,
+                            repo: row.get(1)?,
+                            pr_number: row.get::<_, Option<i64>>(2)?.map(|n| n as u64),
+                            kind: row.get(3)?,
+                            detail: row.get(4)?,
+                            at: row.get(5)?,
+                        })
+                    },
+                )?
                 .collect::<rusqlite::Result<Vec<_>>>()?;
             Ok(rows)
         })
@@ -426,7 +430,9 @@ impl Db {
     #[cfg(test)]
     pub async fn count_retry_jobs(&self) -> Result<i64> {
         self.with_conn(move |c| {
-            Ok(c.query_row("SELECT COUNT(*) FROM retry_jobs", [], |r| r.get::<_, i64>(0))?)
+            Ok(c.query_row("SELECT COUNT(*) FROM retry_jobs", [], |r| {
+                r.get::<_, i64>(0)
+            })?)
         })
         .await
     }
@@ -480,7 +486,9 @@ mod tests {
             head: BranchRef {
                 r#ref: format!("feat/{}", num),
             },
-            base: BranchRef { r#ref: "main".into() },
+            base: BranchRef {
+                r#ref: "main".into(),
+            },
             draft: false,
             updated_at: "2026-04-29T00:00:00Z".into(),
         }
@@ -525,18 +533,39 @@ mod tests {
     async fn retry_jobs_dedupe_on_natural_key() {
         let td = TempDir::new().unwrap();
         let db = Db::open(&td.path().join("test.db")).unwrap();
-        db.enqueue_retry("retarget".into(), "o/r".into(), 1, r#"{"base":"main"}"#.into(), 100, 100)
-            .await
-            .unwrap();
-        db.enqueue_retry("retarget".into(), "o/r".into(), 1, r#"{"base":"main"}"#.into(), 200, 200)
-            .await
-            .unwrap();
+        db.enqueue_retry(
+            "retarget".into(),
+            "o/r".into(),
+            1,
+            r#"{"base":"main"}"#.into(),
+            100,
+            100,
+        )
+        .await
+        .unwrap();
+        db.enqueue_retry(
+            "retarget".into(),
+            "o/r".into(),
+            1,
+            r#"{"base":"main"}"#.into(),
+            200,
+            200,
+        )
+        .await
+        .unwrap();
         assert_eq!(db.count_retry_jobs().await.unwrap(), 1);
 
         // Different payload → new row.
-        db.enqueue_retry("retarget".into(), "o/r".into(), 1, r#"{"base":"feat/a"}"#.into(), 300, 300)
-            .await
-            .unwrap();
+        db.enqueue_retry(
+            "retarget".into(),
+            "o/r".into(),
+            1,
+            r#"{"base":"feat/a"}"#.into(),
+            300,
+            300,
+        )
+        .await
+        .unwrap();
         assert_eq!(db.count_retry_jobs().await.unwrap(), 2);
     }
 
@@ -562,9 +591,21 @@ mod tests {
         db.enqueue_retry("retarget".into(), "o/r".into(), 1, "{}".into(), 50, 50)
             .await
             .unwrap();
-        let job = db.list_retry_jobs(10).await.unwrap().into_iter().next().unwrap();
+        let job = db
+            .list_retry_jobs(10)
+            .await
+            .unwrap()
+            .into_iter()
+            .next()
+            .unwrap();
         db.bump_retry(job.id, "boom".into(), 500).await.unwrap();
-        let after = db.list_retry_jobs(10).await.unwrap().into_iter().next().unwrap();
+        let after = db
+            .list_retry_jobs(10)
+            .await
+            .unwrap()
+            .into_iter()
+            .next()
+            .unwrap();
         assert_eq!(after.attempts, 1);
         assert_eq!(after.last_error.as_deref(), Some("boom"));
         assert_eq!(after.next_attempt_at, 500);

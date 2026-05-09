@@ -179,7 +179,9 @@ async fn retarget_children_of_merged(
                         now_secs(),
                     )
                     .await?;
-                    let kind = JobKind::RetargetBase { base: new_base.clone() };
+                    let kind = JobKind::RetargetBase {
+                        base: new_base.clone(),
+                    };
                     if let Err(qe) = retry::enqueue(db, repo, pr_num, &kind).await {
                         tracing::error!(error = %qe, "could not enqueue retry job");
                     }

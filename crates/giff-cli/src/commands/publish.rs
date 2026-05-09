@@ -111,7 +111,10 @@ mod tests {
 
     #[test]
     fn slugifies_basic_message() {
-        assert_eq!(slugify("Add token signing"), Some("add-token-signing".into()));
+        assert_eq!(
+            slugify("Add token signing"),
+            Some("add-token-signing".into())
+        );
     }
 
     #[test]
@@ -120,7 +123,10 @@ mod tests {
             slugify("feat: token signing"),
             Some("feat/token-signing".into())
         );
-        assert_eq!(slugify("fix: redirect bug"), Some("fix/redirect-bug".into()));
+        assert_eq!(
+            slugify("fix: redirect bug"),
+            Some("fix/redirect-bug".into())
+        );
         assert_eq!(slugify("chore: bump deps"), Some("chore/bump-deps".into()));
     }
 

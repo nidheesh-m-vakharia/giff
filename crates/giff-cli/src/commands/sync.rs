@@ -157,7 +157,10 @@ pub fn run(resume: bool) -> Result<()> {
         // trunk so they end up somewhere sensible rather than on a stale branch.
         if backend.checkout(&current).is_err() {
             backend.checkout(&trunk)?;
-            println!("(your previous branch was merged — checked out {} instead)", trunk);
+            println!(
+                "(your previous branch was merged — checked out {} instead)",
+                trunk
+            );
         }
         println!("Stack restacked successfully.");
     }
@@ -193,10 +196,8 @@ fn restack(
                 for h in &hints {
                     eprintln!("    {}", h);
                 }
-                let pending_frame_ids: Vec<String> = frames[i + 1..]
-                    .iter()
-                    .map(|f| f.id.0.clone())
-                    .collect();
+                let pending_frame_ids: Vec<String> =
+                    frames[i + 1..].iter().map(|f| f.id.0.clone()).collect();
                 save_resume(&SyncResume {
                     stack_id: stack_id.to_string(),
                     pending_frame_ids,
@@ -325,7 +326,10 @@ fn reconcile_merged_prs(
         let frame = stack.frame(frame_id).unwrap();
         let new_base = match new_parent {
             None => trunk.clone(),
-            Some(pid) => frame_branches.get(pid).cloned().unwrap_or_else(|| trunk.clone()),
+            Some(pid) => frame_branches
+                .get(pid)
+                .cloned()
+                .unwrap_or_else(|| trunk.clone()),
         };
         if let Some(pr_num) = frame.pr_number {
             println!("  retargeting PR #{} → {}", pr_num, new_base);

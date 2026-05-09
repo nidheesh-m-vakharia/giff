@@ -572,7 +572,9 @@ fn tree_giff_next_errors_when_ambiguous() {
     assert!(!out.status.success());
     let stderr = String::from_utf8_lossy(&out.stderr);
     assert!(
-        stderr.contains("ambiguous") && stderr.contains("feat/left") && stderr.contains("feat/right"),
+        stderr.contains("ambiguous")
+            && stderr.contains("feat/left")
+            && stderr.contains("feat/right"),
         "expected ambiguity message, got:\n{}",
         stderr
     );
@@ -640,7 +642,11 @@ fn tree_giff_status_shows_tree_shape_and_path() {
         .unwrap();
     assert!(out.status.success());
     let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.contains("tree"), "expected 'tree' in status:\n{}", stdout);
+    assert!(
+        stdout.contains("tree"),
+        "expected 'tree' in status:\n{}",
+        stdout
+    );
     // We are on feat/right (last `giff new`), so path should include both root and right.
     assert!(stdout.contains("feat/root"), "{}", stdout);
     assert!(stdout.contains("feat/right"), "{}", stdout);
@@ -854,12 +860,19 @@ fn direct_git_commit_blocked_for_second_commit_on_frame() {
     // First commit via plain git — hook allows it (count is 0 → 1).
     stage_file(repo.path(), "a.txt", "first");
     let out = git_with_giff_on_path(repo.path(), &["commit", "-m", "first"]);
-    assert!(out.status.success(), "first commit should succeed: stderr={}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "first commit should succeed: stderr={}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // Second commit via plain git — hook MUST block.
     stage_file(repo.path(), "b.txt", "second");
     let out = git_with_giff_on_path(repo.path(), &["commit", "-m", "second"]);
-    assert!(!out.status.success(), "second direct git commit should be blocked");
+    assert!(
+        !out.status.success(),
+        "second direct git commit should be blocked"
+    );
     let stderr = String::from_utf8_lossy(&out.stderr);
     assert!(
         stderr.contains("one commit per frame"),
@@ -969,7 +982,11 @@ fn squash_amends_parent_keeping_one_commit_rule() {
         .output()
         .unwrap();
     let count: usize = String::from_utf8_lossy(&out.stdout).trim().parse().unwrap();
-    assert_eq!(count, 1, "expected 1 commit on feat/a after squash, got {}", count);
+    assert_eq!(
+        count, 1,
+        "expected 1 commit on feat/a after squash, got {}",
+        count
+    );
 }
 
 #[test]
@@ -1069,7 +1086,10 @@ fn publish_creates_frame_and_commits_in_one_step() {
         .current_dir(repo.path())
         .output()
         .unwrap();
-    assert_eq!(String::from_utf8_lossy(&out.stdout).trim(), "Add token signing");
+    assert_eq!(
+        String::from_utf8_lossy(&out.stdout).trim(),
+        "Add token signing"
+    );
 }
 
 #[test]

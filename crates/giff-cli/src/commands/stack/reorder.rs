@@ -69,7 +69,14 @@ pub fn run() -> Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let result = run_tui(&mut terminal, &stack_name, &trunk, &current, &mut rows, &mut cursor);
+    let result = run_tui(
+        &mut terminal,
+        &stack_name,
+        &trunk,
+        &current,
+        &mut rows,
+        &mut cursor,
+    );
 
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
@@ -123,9 +130,9 @@ fn run_tui(
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([
-                    Constraint::Length(1),                 // top status: stack header
-                    Constraint::Min(3),                    // list
-                    Constraint::Length(1),                 // bottom hints
+                    Constraint::Length(1), // top status: stack header
+                    Constraint::Min(3),    // list
+                    Constraint::Length(1), // bottom hints
                 ])
                 .split(area);
 
@@ -133,7 +140,10 @@ fn run_tui(
             let header = Paragraph::new(Line::from(vec![
                 Span::styled(" stack ", Style::default().fg(Color::Black).bg(Color::Cyan)),
                 Span::raw(" "),
-                Span::styled(stack_name.to_string(), Style::default().add_modifier(Modifier::BOLD)),
+                Span::styled(
+                    stack_name.to_string(),
+                    Style::default().add_modifier(Modifier::BOLD),
+                ),
                 Span::raw("  "),
                 Span::styled("trunk:", Style::default().fg(Color::DarkGray)),
                 Span::raw(" "),
@@ -154,7 +164,12 @@ fn run_tui(
 
             let block_title = Line::from(vec![
                 Span::raw(" "),
-                Span::styled("Reorder", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+                Span::styled(
+                    "Reorder",
+                    Style::default()
+                        .fg(Color::Cyan)
+                        .add_modifier(Modifier::BOLD),
+                ),
                 Span::raw(" "),
             ]);
             let list = List::new(items).block(
@@ -224,9 +239,13 @@ fn build_row(idx: usize, row: &Row, current_branch: &str, cursor: usize) -> List
     };
 
     let branch_style = if is_cursor {
-        Style::default().fg(Color::Black).add_modifier(Modifier::BOLD)
+        Style::default()
+            .fg(Color::Black)
+            .add_modifier(Modifier::BOLD)
     } else if is_current {
-        Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
+        Style::default()
+            .fg(Color::Yellow)
+            .add_modifier(Modifier::BOLD)
     } else {
         Style::default().add_modifier(Modifier::BOLD)
     };
@@ -239,7 +258,14 @@ fn build_row(idx: usize, row: &Row, current_branch: &str, cursor: usize) -> List
 
     let line = Line::from(vec![
         Span::raw(cursor_marker),
-        Span::styled(position, Style::default().fg(if is_cursor { Color::Black } else { Color::DarkGray })),
+        Span::styled(
+            position,
+            Style::default().fg(if is_cursor {
+                Color::Black
+            } else {
+                Color::DarkGray
+            }),
+        ),
         Span::raw("  "),
         Span::styled(row.branch.clone(), branch_style),
         Span::styled(pr, pr_style),

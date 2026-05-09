@@ -146,14 +146,21 @@ fn pick_loop(
                     };
                     let line = Line::from(vec![
                         Span::raw(if i == *cursor { "▸ " } else { "  " }),
-                        Span::styled(frame.branch.clone(), Style::default().add_modifier(Modifier::BOLD)),
+                        Span::styled(
+                            frame.branch.clone(),
+                            Style::default().add_modifier(Modifier::BOLD),
+                        ),
                         Span::styled(pr, Style::default().fg(Color::DarkGray)),
                     ]);
                     ListItem::new(line).style(style)
                 })
                 .collect();
 
-            let title = format!(" frame `{}` has {} children — pick one ", parent_branch, children.len());
+            let title = format!(
+                " frame `{}` has {} children — pick one ",
+                parent_branch,
+                children.len()
+            );
             let list = List::new(items).block(
                 Block::default()
                     .borders(Borders::ALL)

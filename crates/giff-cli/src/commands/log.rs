@@ -53,7 +53,15 @@ pub fn run(show_all: bool) -> Result<()> {
         for root in visible_roots {
             println!("│");
             print_frame(root, "", &current, &pr_states);
-            print_visible_subtree(stack, &root.id, "", &current, &pr_states, &is_visible, &mut hidden);
+            print_visible_subtree(
+                stack,
+                &root.id,
+                "",
+                &current,
+                &pr_states,
+                &is_visible,
+                &mut hidden,
+            );
         }
         println!();
     }
@@ -81,7 +89,9 @@ fn visible_children_of_root<'a>(
             out.push(root);
         } else {
             *hidden += 1;
-            out.extend(visible_descendants_one_level(stack, &root.id, is_visible, hidden));
+            out.extend(visible_descendants_one_level(
+                stack, &root.id, is_visible, hidden,
+            ));
         }
     }
     out
@@ -102,7 +112,9 @@ fn visible_descendants_one_level<'a>(
             out.push(kid);
         } else {
             *hidden += 1;
-            out.extend(visible_descendants_one_level(stack, &kid.id, is_visible, hidden));
+            out.extend(visible_descendants_one_level(
+                stack, &kid.id, is_visible, hidden,
+            ));
         }
     }
     out
@@ -142,11 +154,13 @@ fn fetch_pr_states_parallel(stacks: &[Stack], forge: &GitHubForge) -> HashMap<u6
         .iter()
         .flat_map(|s| s.frames.iter().filter_map(|f| f.pr_number))
         .collect();
-    let results = crate::concurrency::parallel_map(
-        pr_numbers,
-        crate::concurrency::HTTP_WORKERS,
-        |&pr_num| (pr_num, forge.get_pr(pr_num).ok().map(|pr| (pr.state, pr.merged))),
-    );
+    let results =
+        crate::concurrency::parallel_map(pr_numbers, crate::concurrency::HTTP_WORKERS, |&pr_num| {
+            (
+                pr_num,
+                forge.get_pr(pr_num).ok().map(|pr| (pr.state, pr.merged)),
+            )
+        });
     results
         .into_iter()
         .filter_map(|(pr_num, info)| {
@@ -160,12 +174,7 @@ fn fetch_pr_states_parallel(stacks: &[Stack], forge: &GitHubForge) -> HashMap<u6
         .collect()
 }
 
-fn print_frame(
-    frame: &StackFrame,
-    prefix: &str,
-    current: &str,
-    pr_states: &HashMap<u64, String>,
-) {
+fn print_frame(frame: &StackFrame, prefix: &str, current: &str, pr_states: &HashMap<u64, String>) {
     let marker = if frame.branch == current {
         " ← you are here"
     } else {
@@ -174,7 +183,10 @@ fn print_frame(
     let pr_label = match frame.pr_number {
         None => "no PR".to_string(),
         Some(n) => {
-            let state = pr_states.get(&n).cloned().unwrap_or_else(|| format!("#{}", n));
+            let state = pr_states
+                .get(&n)
+                .cloned()
+                .unwrap_or_else(|| format!("#{}", n));
             format!("PR #{} [{}]", n, state)
         }
     };

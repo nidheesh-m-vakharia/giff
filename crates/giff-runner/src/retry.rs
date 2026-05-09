@@ -238,7 +238,9 @@ mod tests {
 
     #[test]
     fn jobkind_round_trips_through_json() {
-        let k = JobKind::RetargetBase { base: "main".into() };
+        let k = JobKind::RetargetBase {
+            base: "main".into(),
+        };
         let s = serde_json::to_string(&k).unwrap();
         let back: JobKind = serde_json::from_str(&s).unwrap();
         match back {

@@ -74,10 +74,7 @@ pub fn run() -> Result<()> {
     // moved out from under us).
     {
         let mut args: Vec<&str> = vec!["push", "--force-with-lease", "origin"];
-        let refspecs: Vec<String> = topo
-            .iter()
-            .map(|f| format!("{0}:{0}", f.branch))
-            .collect();
+        let refspecs: Vec<String> = topo.iter().map(|f| format!("{0}:{0}", f.branch)).collect();
         for r in &refspecs {
             args.push(r.as_str());
         }
@@ -117,7 +114,12 @@ pub fn run() -> Result<()> {
             };
             let stack_line = format!("Part {}/{} of stack `{}`.", position, total, stack.name);
             let body = match &template_body {
-                Some(t) => format!("{}\n\n{}\n\n{}", t.trim_end(), stack_line, meta.to_pr_block()),
+                Some(t) => format!(
+                    "{}\n\n{}\n\n{}",
+                    t.trim_end(),
+                    stack_line,
+                    meta.to_pr_block()
+                ),
                 None => format!("{}\n\n{}", stack_line, meta.to_pr_block()),
             };
             Ok(Job {
