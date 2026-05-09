@@ -1,13 +1,13 @@
 [package]
 name = "giff-git"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Git backend for giffstack — GitBackend trait + ShellGitBackend (shells out to system git)."
 license = "MIT"
 repository = "https://github.com/nidheesh-m-vakharia/giff"
 
 [dependencies]
-giff-core = { path = "../giff-core", version = "0.1" }
+giff-core = { path = "../giff-core", version = "0.2" }
 thiserror = "1"
 
 [dev-dependencies]

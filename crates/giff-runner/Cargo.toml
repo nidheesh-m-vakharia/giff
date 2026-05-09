@@ -1,6 +1,6 @@
 [package]
 name = "giff-runner"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Self-hostable runner for giffstack — GitHub webhooks + polling, SQLite metadata, retry queue, optional auto-merge."
 license = "MIT"
@@ -11,8 +11,8 @@ name = "giff-runner"
 path = "src/main.rs"
 
 [dependencies]
-giff-core   = { path = "../giff-core",   version = "0.1" }
-giff-github = { path = "../giff-github", version = "0.1" }
+giff-core   = { path = "../giff-core",   version = "0.2" }
+giff-github = { path = "../giff-github", version = "0.2" }
 
 # Async runtime + HTTP server. The CLI stays sync (per spec); the runner is its own
 # binary so async here doesn't affect CLI binary size.

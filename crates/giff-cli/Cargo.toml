@@ -1,6 +1,6 @@
 [package]
 name = "giffstack"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Stacked diffs for GitHub. CLI for managing chains/trees of dependent PRs."
 license = "MIT"
@@ -31,9 +31,9 @@ path = "src/main.rs"
 [dependencies]
 # When publishing to crates.io, cargo uses the version field; when building locally,
 # the path field wins. Both keep dev and release flows working.
-giff-core   = { path = "../giff-core",   version = "0.1" }
-giff-git    = { path = "../giff-git",    version = "0.1" }
-giff-github = { path = "../giff-github", version = "0.1" }
+giff-core   = { path = "../giff-core",   version = "0.2" }
+giff-git    = { path = "../giff-git",    version = "0.2" }
+giff-github = { path = "../giff-github", version = "0.2" }
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 crossterm = "0.27"
