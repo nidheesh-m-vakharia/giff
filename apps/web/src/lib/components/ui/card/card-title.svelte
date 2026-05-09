@@ -1,7 +1,9 @@
 <script lang="ts">
-  // CardTitle
+  import { cn } from '$lib/utils';
+  let className = '';
+  export { className as class };
 </script>
 
-<h3 class="text-2xl font-semibold leading-none tracking-tight">
+<h3 class={cn('text-2xl font-semibold leading-none tracking-tight', className)}>
   <slot />
 </h3>

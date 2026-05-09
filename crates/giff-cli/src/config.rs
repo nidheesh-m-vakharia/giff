@@ -113,6 +113,11 @@ pub fn find_stack_store_path() -> Result<PathBuf> {
     loop {
         let git_dir = dir.join(".git");
         if git_dir.exists() {
+            // If this repo is already giff-managed, make sure the pre-commit hook is installed.
+            // Cheap and idempotent — runs once and silently no-ops thereafter.
+            if git_dir.join("stacked.toml").exists() {
+                crate::hooks::ensure_installed_quiet(&git_dir);
+            }
             return Ok(git_dir.join("stacked.toml"));
         }
         if !dir.pop() {

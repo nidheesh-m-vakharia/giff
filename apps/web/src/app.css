@@ -1,3 +1,6 @@
+@import '@fontsource-variable/geist/index.css';
+@import '@fontsource-variable/geist-mono/index.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -51,6 +54,21 @@
 * {
   @apply border-border;
 }
+html {
+  font-feature-settings:
+    'cv11',
+    'ss01',
+    'ss03';
+  font-variation-settings: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
 body {
-  @apply bg-background text-foreground;
+  @apply bg-background text-foreground font-sans;
+}
+code,
+pre,
+.font-mono {
+  font-feature-settings: 'liga' 0;
 }

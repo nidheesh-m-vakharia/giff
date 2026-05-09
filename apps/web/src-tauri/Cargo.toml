@@ -1,0 +1,27 @@
+[package]
+name = "giffstack-dashboard"
+version = "0.1.0"
+edition = "2021"
+description = "Desktop dashboard for giffstack — Tauri shell around the SvelteKit web app."
+license = "MIT"
+repository = "https://github.com/nidheesh-m-vakharia/giff"
+
+# `tauri build` produces the binary; `cargo install --path .` works after a one-time
+# `npm run build` inside ../ so the static frontend is on disk for tauri-build to embed.
+[[bin]]
+name = "giffstack-dashboard"
+path = "src/main.rs"
+
+[lib]
+name = "giffstack_dashboard_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-http = "2"
+tauri-plugin-os = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

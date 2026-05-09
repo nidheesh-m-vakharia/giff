@@ -45,71 +45,153 @@ pub fn run() -> Result<()> {
 
     let forge = GitHubForge::new(token, repo, cfg.github.base_url.clone());
 
+    let template_body = if cfg.defaults.pr_template.is_empty() {
+        None
+    } else {
+        let path = std::path::PathBuf::from(&cfg.defaults.pr_template);
+        Some(
+            std::fs::read_to_string(&path)
+                .with_context(|| format!("reading pr_template at {}", path.display()))?,
+        )
+    };
+
     let stack = store
         .stacks
         .iter()
         .find(|s| s.id == stack_id)
         .unwrap()
         .clone();
+    stack.validate()?;
     let total = stack.frames.len();
 
-    for (i, frame) in stack.ordered_frames().iter().enumerate() {
-        let position = i + 1;
-        let base = if i == 0 {
-            stack.trunk.clone()
-        } else {
-            stack.ordered_frames()[i - 1].branch.clone()
-        };
+    // Topological order guarantees parents are listed before children, so each PR can reliably
+    // target its parent's branch.
+    let topo: Vec<_> = stack.topological_order().into_iter().cloned().collect();
 
-        let meta = RemoteStackMeta {
-            stack_id: stack.id.clone(),
-            frame_id: frame.id.clone(),
-            position,
-            total,
-        };
-        let body = format!(
-            "Part {}/{} of stack `{}`.\n\n{}",
-            position,
-            total,
-            stack.name,
-            meta.to_pr_block()
-        );
+    // Phase 1 — push every branch in a SINGLE `git push` invocation so SSH only handshakes
+    // once for the whole stack (instead of N times). git push accepts multiple refspecs, and
+    // --force-with-lease is the safe variant of `--force` (refuses to clobber if the remote
+    // moved out from under us).
+    {
+        let mut args: Vec<&str> = vec!["push", "--force-with-lease", "origin"];
+        let refspecs: Vec<String> = topo
+            .iter()
+            .map(|f| format!("{0}:{0}", f.branch))
+            .collect();
+        for r in &refspecs {
+            args.push(r.as_str());
+        }
+        backend.git_raw(&args)?;
+    }
 
-        backend.push(&frame.branch, true)?;
+    // Phase 2 — build the per-frame API jobs. Each PR's `base` references its parent's branch
+    // *name* (not number), so once Phase 1 finished, every PR call is independent of the others
+    // and we can fan them out across HTTP_WORKERS threads.
+    struct Job {
+        frame_id: giff_core::FrameId,
+        branch: String,
+        existing_pr: Option<u64>,
+        params_create: CreatePrParams,
+        params_update: UpdatePrParams,
+    }
 
-        let frame_id = frame.id.clone();
-        let frame_branch = frame.branch.clone();
-        let frame_pr_number = frame.pr_number;
-
-        let pr_number = if let Some(existing) = frame_pr_number {
-            forge.update_pr(
-                existing,
-                UpdatePrParams {
+    let jobs: Vec<Job> = topo
+        .iter()
+        .enumerate()
+        .map(|(i, frame)| -> Result<Job> {
+            let position = i + 1;
+            let base = match frame.parent.as_ref() {
+                None => stack.trunk.clone(),
+                Some(parent_id) => stack
+                    .frame(parent_id)
+                    .ok_or_else(|| anyhow::anyhow!("parent frame missing for `{}`", frame.branch))?
+                    .branch
+                    .clone(),
+            };
+            let meta = RemoteStackMeta {
+                stack_id: stack.id.clone(),
+                frame_id: frame.id.clone(),
+                parent_frame_id: frame.parent.clone(),
+                position,
+                total,
+            };
+            let stack_line = format!("Part {}/{} of stack `{}`.", position, total, stack.name);
+            let body = match &template_body {
+                Some(t) => format!("{}\n\n{}\n\n{}", t.trim_end(), stack_line, meta.to_pr_block()),
+                None => format!("{}\n\n{}", stack_line, meta.to_pr_block()),
+            };
+            Ok(Job {
+                frame_id: frame.id.clone(),
+                branch: frame.branch.clone(),
+                existing_pr: frame.pr_number,
+                params_create: CreatePrParams {
+                    title: frame.branch.clone(),
+                    body: body.clone(),
+                    head: frame.branch.clone(),
+                    base: base.clone(),
+                    draft: cfg.defaults.draft_prs,
+                },
+                params_update: UpdatePrParams {
                     body: Some(body),
                     base: Some(base),
                 },
-            )?;
-            existing
-        } else {
-            let pr = forge.create_pr(CreatePrParams {
-                title: frame_branch.clone(),
-                body,
-                head: frame_branch.clone(),
-                base,
-                draft: cfg.defaults.draft_prs,
-            })?;
-            pr.number
-        };
+            })
+        })
+        .collect::<Result<_>>()?;
 
-        // Update pr_number in store
-        let s = store.stacks.iter_mut().find(|s| s.id == stack_id).unwrap();
-        let f = s.frames.iter_mut().find(|f| f.id == frame_id).unwrap();
-        f.pr_number = Some(pr_number);
+    // Phase 3 — fire the API calls in parallel. Result tuple = (frame_id, branch, outcome).
+    let outcomes = crate::concurrency::parallel_map(
+        jobs,
+        crate::concurrency::HTTP_WORKERS,
+        |job| -> (giff_core::FrameId, String, Result<u64, String>) {
+            let result = match job.existing_pr {
+                Some(existing) => forge
+                    .update_pr(existing, job.params_update.clone())
+                    .map(|_| existing)
+                    .map_err(|e| e.to_string()),
+                None => forge
+                    .create_pr(job.params_create.clone())
+                    .map(|pr| pr.number)
+                    .map_err(|e| e.to_string()),
+            };
+            (job.frame_id.clone(), job.branch.clone(), result)
+        },
+    );
 
-        println!("  {} → PR #{}", frame_branch, pr_number);
+    // Phase 4 — apply successes to the store, summarise failures. We always write whatever
+    // succeeded so a partial failure can be retried by re-running `giff push`.
+    let mut failures: Vec<(String, String)> = Vec::new();
+    for (frame_id, branch, result) in &outcomes {
+        match result {
+            Ok(pr_number) => {
+                let s = store.stacks.iter_mut().find(|s| s.id == stack_id).unwrap();
+                let f = s.frames.iter_mut().find(|f| f.id == *frame_id).unwrap();
+                f.pr_number = Some(*pr_number);
+                println!("  {} → PR #{}", branch, pr_number);
+            }
+            Err(e) => {
+                eprintln!("  {} → FAILED: {}", branch, e);
+                failures.push((branch.clone(), e.clone()));
+            }
+        }
     }
 
     write_stack_store(&store_path, &store)?;
+
+    if !failures.is_empty() {
+        eprintln!();
+        eprintln!(
+            "warning: {} of {} PR operations failed:",
+            failures.len(),
+            outcomes.len()
+        );
+        for (branch, err) in &failures {
+            eprintln!("  • {}: {}", branch, err);
+        }
+        eprintln!("Re-run `giff push` to retry.");
+        anyhow::bail!("partial push failure");
+    }
+
     Ok(())
 }
 

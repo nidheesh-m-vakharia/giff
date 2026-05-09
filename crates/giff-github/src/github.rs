@@ -1,7 +1,8 @@
-use crate::forge::{CreatePrParams, ForgeBackend, PullRequest, UpdatePrParams};
+use crate::forge::{CreatePrParams, ForgeBackend, PrStatus, PullRequest, UpdatePrParams};
 use giff_core::GiffError;
 use serde_json::json;
 
+#[derive(Clone)]
 pub struct GitHubForge {
     token: String,
     repo: String,
@@ -83,6 +84,30 @@ impl ForgeBackend for GitHubForge {
             .call()
             .map_err(|e| GiffError::Forge(e.to_string()))?;
         resp.into_json::<PullRequest>()
+            .map_err(|e| GiffError::Forge(e.to_string()))
+    }
+
+    fn pr_status(&self, number: u64) -> Result<PrStatus, GiffError> {
+        let resp = self
+            .agent()
+            .get(&self.url(&format!("/pulls/{}", number)))
+            .set("Authorization", &self.auth_header())
+            .set("Accept", "application/vnd.github+json")
+            .call()
+            .map_err(|e| GiffError::Forge(e.to_string()))?;
+        resp.into_json::<PrStatus>()
+            .map_err(|e| GiffError::Forge(e.to_string()))
+    }
+
+    fn list_open_pulls(&self) -> Result<Vec<PullRequest>, GiffError> {
+        let resp = self
+            .agent()
+            .get(&self.url("/pulls?state=open&per_page=100"))
+            .set("Authorization", &self.auth_header())
+            .set("Accept", "application/vnd.github+json")
+            .call()
+            .map_err(|e| GiffError::Forge(e.to_string()))?;
+        resp.into_json::<Vec<PullRequest>>()
             .map_err(|e| GiffError::Forge(e.to_string()))
     }
 

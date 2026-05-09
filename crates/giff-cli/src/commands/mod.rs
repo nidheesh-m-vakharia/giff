@@ -1,7 +1,10 @@
 pub mod checkout;
+pub mod commit;
 pub mod init;
 pub mod log;
 pub mod new;
+pub mod parent_branch;
+pub mod publish;
 pub mod push;
 pub mod stack;
 pub mod status;

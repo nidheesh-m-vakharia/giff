@@ -1,0 +1,54 @@
+@import '@fontsource-variable/geist/index.css';
+@import '@fontsource-variable/geist-mono/index.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Apple-leaning neutrals: near-black foreground (~#1d1d1f), soft warm-grey muted,
+       very faint borders. Background stays clean #ffffff. Larger radius for the
+       rounded-corner feel Apple uses across hardware AND software. */
+    --background: 0 0% 100%;
+    --foreground: 220 9% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 9% 12%;
+    --muted: 220 13% 96.5%;
+    --muted-foreground: 220 8% 46%;
+    --accent: 220 13% 96.5%;
+    --accent-foreground: 220 9% 12%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 9% 12%;
+    --radius: 0.75rem;
+  }
+}
+
+* {
+  @apply border-border;
+}
+
+html {
+  font-feature-settings:
+    'cv11',
+    'ss01',
+    'ss03';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  @apply bg-background text-foreground font-sans;
+}
+
+code,
+pre,
+.font-mono {
+  font-feature-settings: 'liga' 0;
+}
+
+/* Anchor offset so heading IDs don't end up under the sticky header. */
+.anchor-target {
+  scroll-margin-top: 5rem;
+}

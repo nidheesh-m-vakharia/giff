@@ -20,11 +20,16 @@ pub fn run(branch: &str) -> Result<()> {
 
     let dropped = stack.frames.remove(drop_idx);
 
-    // Re-parent the frame that was above the dropped frame
-    if let Some(above) = stack.frames.get_mut(drop_idx) {
-        above.parent = dropped.parent.clone();
+    // Re-parent every direct child of the dropped frame to the dropped frame's parent.
+    // For a linear stack this affects exactly one frame; for trees, every sibling-child gets
+    // promoted up one level under their grandparent (or made into roots if dropped was a root).
+    for f in stack.frames.iter_mut() {
+        if f.parent.as_ref() == Some(&dropped.id) {
+            f.parent = dropped.parent.clone();
+        }
     }
 
+    stack.validate()?;
     write_stack_store(&store_path, &store)?;
     println!("Dropped frame: {}", branch);
     println!(

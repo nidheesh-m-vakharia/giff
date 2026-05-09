@@ -1,0 +1,29 @@
+# Self-host giff-runner.
+#
+# Usage:
+#   1. Copy crates/giff-runner/example-config.toml to ./config/runner.toml and edit.
+#   2. Set GITHUB_TOKEN in a `.env` file alongside this compose file (or export it).
+#   3. docker compose up -d
+#
+# To expose webhooks publicly without port-forwarding, run a Cloudflare Tunnel sidecar
+# pointing at giff-runner:8080. See https://developers.cloudflare.com/cloudflare-one/.
+
+services:
+  giff-runner:
+    build:
+      context: .
+      dockerfile: crates/giff-runner/Dockerfile
+    image: giff-runner:local
+    container_name: giff-runner
+    restart: unless-stopped
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN:?GITHUB_TOKEN is required}
+      RUST_LOG: ${RUST_LOG:-info,giff_runner=info}
+    volumes:
+      - ./config/runner.toml:/etc/giff-runner/config.toml:ro
+      - giff-data:/data
+    ports:
+      - "${GIFF_RUNNER_PORT:-8080}:8080"
+
+volumes:
+  giff-data:

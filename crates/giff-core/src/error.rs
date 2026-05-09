@@ -14,4 +14,8 @@ pub enum GiffError {
     Config(String),
     #[error("parse error: {0}")]
     Parse(String),
+    #[error("invalid stack: {0}")]
+    InvalidStack(String),
+    #[error("ambiguous: {0}")]
+    Ambiguous(String),
 }

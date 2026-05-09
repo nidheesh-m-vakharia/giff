@@ -69,9 +69,21 @@ pub fn run(branch: &str) -> Result<()> {
         });
     }
 
+    // Sanity check before we touch git or write the store. Catches duplicate branches,
+    // duplicate ids, dangling parents, or cycles that anything earlier might have introduced.
+    for s in &store.stacks {
+        s.validate()?;
+    }
+
     backend.create_branch(branch, &current)?;
     backend.checkout(branch)?;
     write_stack_store(&store_path, &store)?;
+
+    // First `giff new` in a repo creates `.git/stacked.toml`; install the hook now since the
+    // walk in `find_stack_store_path` above couldn't (the file didn't exist yet).
+    if let Some(git_dir) = store_path.parent() {
+        crate::hooks::ensure_installed_quiet(git_dir);
+    }
 
     println!("Created frame: {branch}");
     Ok(())

@@ -1,16 +1,28 @@
 [package]
-name = "giff-cli"
+name = "giffstack"
 version = "0.1.0"
 edition = "2021"
+description = "Stacked diffs for GitHub. CLI for managing chains/trees of dependent PRs."
+license = "MIT"
+repository = "https://github.com/nidheesh-m-vakharia/giff"
+homepage = "https://github.com/nidheesh-m-vakharia/giff"
+documentation = "https://docs.rs/giffstack"
+readme = "../../README.md"
+keywords = ["git", "github", "stacked-diffs", "cli", "pr"]
+categories = ["command-line-utilities", "development-tools"]
 
+# Binary name kept as `giff` so the install command (`cargo install giffstack`)
+# differs from the runtime command (`giff`) — matching how `ripgrep` ships `rg`.
 [[bin]]
 name = "giff"
 path = "src/main.rs"
 
 [dependencies]
-giff-core = { path = "../giff-core" }
-giff-git = { path = "../giff-git" }
-giff-github = { path = "../giff-github" }
+# When publishing to crates.io, cargo uses the version field; when building locally,
+# the path field wins. Both keep dev and release flows working.
+giff-core   = { path = "../giff-core",   version = "0.1" }
+giff-git    = { path = "../giff-git",    version = "0.1" }
+giff-github = { path = "../giff-github", version = "0.1" }
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 crossterm = "0.27"

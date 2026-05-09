@@ -1,7 +1,9 @@
 <script lang="ts">
-  // CardContent
+  import { cn } from '$lib/utils';
+  let className = '';
+  export { className as class };
 </script>
 
-<div class="p-6 pt-0">
+<div class={cn('p-6 pt-0', className)}>
   <slot />
 </div>

@@ -2,6 +2,9 @@
 name = "giff-core"
 version = "0.1.0"
 edition = "2021"
+description = "Pure-Rust core types and algorithms for giffstack — stack data model, validation, and traversal."
+license = "MIT"
+repository = "https://github.com/nidheesh-m-vakharia/giff"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

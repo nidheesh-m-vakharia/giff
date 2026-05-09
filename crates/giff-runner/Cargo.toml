@@ -1,0 +1,47 @@
+[package]
+name = "giff-runner"
+version = "0.1.0"
+edition = "2021"
+description = "Self-hostable runner for giffstack — GitHub webhooks + polling, SQLite metadata, retry queue, optional auto-merge."
+license = "MIT"
+repository = "https://github.com/nidheesh-m-vakharia/giff"
+
+[[bin]]
+name = "giff-runner"
+path = "src/main.rs"
+
+[dependencies]
+giff-core   = { path = "../giff-core",   version = "0.1" }
+giff-github = { path = "../giff-github", version = "0.1" }
+
+# Async runtime + HTTP server. The CLI stays sync (per spec); the runner is its own
+# binary so async here doesn't affect CLI binary size.
+tokio = { version = "1", features = ["full"] }
+axum = "0.7"
+tower-http = { version = "0.5", features = ["trace", "cors"] }
+
+# Storage (SQLite via rusqlite, sync — wrapped in spawn_blocking from async paths).
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# Config + serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# HMAC-SHA256 for verifying GitHub webhook signatures.
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+subtle = "2"
+
+# Errors + logging
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# CLI args (just one: --config)
+clap = { version = "4", features = ["derive"] }
+
+[dev-dependencies]
+tempfile = "3"

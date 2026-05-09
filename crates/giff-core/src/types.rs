@@ -32,10 +32,17 @@ pub struct StackStore {
 
 /// Embedded in each PR description as a fenced JSON block.
 /// Fence marker: ```giff ... ```
+///
+/// `parent_frame_id` is the canonical tree edge — every traversal uses it.
+/// `position` / `total` are display-only hints; they make sense for linear stacks
+/// but are derived from a depth-first walk for trees.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RemoteStackMeta {
     pub stack_id: StackId,
     pub frame_id: FrameId,
+    /// None when this frame is a stack root (targets the trunk).
+    #[serde(default)]
+    pub parent_frame_id: Option<FrameId>,
     pub position: usize,
     pub total: usize,
 }
@@ -96,6 +103,7 @@ mod tests {
         let meta = RemoteStackMeta {
             stack_id: StackId("s1".into()),
             frame_id: FrameId("f2".into()),
+            parent_frame_id: Some(FrameId("f1".into())),
             position: 2,
             total: 4,
         };
@@ -103,6 +111,33 @@ mod tests {
             "This PR adds tokens.\n\n{}\n\nPlease review.",
             meta.to_pr_block()
         );
+        let parsed = RemoteStackMeta::from_pr_body(&body).unwrap();
+        assert_eq!(parsed, meta);
+    }
+
+    #[test]
+    fn remote_meta_legacy_pr_body_without_parent_id_still_parses() {
+        // PRs written by older giff versions did not include parent_frame_id.
+        let legacy = r#"```giff
+{"stack_id":"s1","frame_id":"f2","position":2,"total":3}
+```"#;
+        let parsed = RemoteStackMeta::from_pr_body(legacy).unwrap();
+        assert_eq!(parsed.stack_id, StackId("s1".into()));
+        assert_eq!(parsed.frame_id, FrameId("f2".into()));
+        assert_eq!(parsed.parent_frame_id, None);
+        assert_eq!(parsed.position, 2);
+    }
+
+    #[test]
+    fn remote_meta_round_trips_unused_marker() {
+        let meta = RemoteStackMeta {
+            stack_id: StackId("s1".into()),
+            frame_id: FrameId("f1".into()),
+            parent_frame_id: None,
+            position: 1,
+            total: 1,
+        };
+        let body = meta.to_pr_block();
         let parsed = RemoteStackMeta::from_pr_body(&body).unwrap();
         assert_eq!(parsed, meta);
     }
@@ -117,6 +152,7 @@ mod tests {
         let meta = RemoteStackMeta {
             stack_id: StackId("s1".into()),
             frame_id: FrameId("f2".into()),
+            parent_frame_id: None,
             position: 1,
             total: 2,
         };

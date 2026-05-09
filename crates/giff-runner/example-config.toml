@@ -1,0 +1,38 @@
+# giff-runner — example configuration. Copy to /etc/giff-runner/config.toml in the
+# container (mount-bind via docker-compose) and customise.
+
+# Where the HTTP server binds. Inside Docker keep this as 0.0.0.0:8080 and expose the
+# port via compose; on bare metal you might prefer 127.0.0.1:8080 behind a reverse proxy.
+listen      = "0.0.0.0:8080"
+
+# Persistent data directory. Mount this on a volume in production.
+data_dir    = "/data"
+
+# Polling cadence in seconds. Webhooks (when configured) do the real work; polling exists
+# as a safety net for missed deliveries. 900s = 15 minutes is a sensible default.
+poll_seconds = 900
+
+# GitHub Enterprise users: change to your API base URL, e.g.:
+# github_base_url = "https://github.example.com/api/v3"
+github_base_url = "https://api.github.com"
+
+# One [[repos]] block per tracked repo. The token (taken from the GITHUB_TOKEN env var)
+# must have `repo` scope and access to every repo listed here.
+
+[[repos]]
+slug          = "owner/example-repo"
+# When true, the runner will merge the bottom (root) PR of any single-root stack as soon
+# as GitHub reports it mergeable. Approving-review enforcement is delegated to your repo's
+# branch protection rules; turn this off if those aren't set up.
+auto_merge    = false
+merge_method  = "merge"            # "merge" | "squash" | "rebase"
+# Generate with: openssl rand -hex 32
+# Without this, webhook deliveries for this repo are rejected and the runner falls back
+# to polling-only mode for it.
+# webhook_secret = "REPLACE_ME"
+
+# [[repos]]
+# slug          = "owner/another-repo"
+# auto_merge    = true
+# merge_method  = "squash"
+# webhook_secret = "REPLACE_ME"

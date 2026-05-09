@@ -2,9 +2,12 @@
 name = "giff-github"
 version = "0.1.0"
 edition = "2021"
+description = "GitHub forge backend for giffstack — ForgeBackend trait + GitHubForge (sync, ureq)."
+license = "MIT"
+repository = "https://github.com/nidheesh-m-vakharia/giff"
 
 [dependencies]
-giff-core = { path = "../giff-core" }
+giff-core = { path = "../giff-core", version = "0.1" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "1"

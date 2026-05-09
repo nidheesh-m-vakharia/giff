@@ -14,9 +14,19 @@ Stacked diffs for GitHub. Work on multiple dependent pull requests as a linear s
 
 ## Install
 
-**From source (requires Rust ≥ 1.75):**
+**From crates.io (requires Rust ≥ 1.75):**
 
 ```sh
+cargo install giffstack
+```
+
+The crate is published as `giffstack`; the binary it ships is `giff`.
+
+**From a local checkout** (for hacking on it):
+
+```sh
+git clone https://github.com/nidheesh-m-vakharia/giff
+cd giff
 cargo install --path crates/giff-cli
 ```
 

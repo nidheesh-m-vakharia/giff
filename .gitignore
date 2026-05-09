@@ -1,2 +1,22 @@
+# Rust
 target/
 
+# Node / SvelteKit
+node_modules/
+.svelte-kit/
+build/
+.vercel/
+dist/
+
+# Tauri (generated capability schemas, build artifacts)
+apps/web/src-tauri/gen/
+
+# Per-user / local
+config/
+.env
+.env.local
+.DS_Store
+
+# IDE
+.idea/
+.vscode/

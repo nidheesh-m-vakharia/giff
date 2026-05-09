@@ -11,14 +11,28 @@ pub fn run() -> Result<()> {
     println!("branch: {}", current);
 
     if let Some((stack, frame)) = store.find_stack_for_branch(&current) {
-        let pos = stack
-            .ordered_frames()
+        let path: Vec<&str> = stack
+            .path_to_root(&frame.id)
             .iter()
-            .position(|f| f.id == frame.id)
-            .unwrap_or(0)
-            + 1;
-        let total = stack.frames.len();
-        println!("stack:  {} ({}/{})", stack.name, pos, total);
+            .map(|f| f.branch.as_str())
+            .collect();
+        let depth = stack.depth(&frame.id);
+        let kids = stack.children(&frame.id).len();
+        let shape = if stack.is_linear() { "linear" } else { "tree" };
+
+        println!(
+            "stack:  {} ({} frames, {})",
+            stack.name,
+            stack.frames.len(),
+            shape
+        );
+        println!(
+            "path:   {} {}{}",
+            stack.trunk,
+            if path.is_empty() { "" } else { "→ " },
+            path.join(" → ")
+        );
+        println!("depth:  {} (children: {})", depth, kids);
         if let Some(pr) = frame.pr_number {
             println!("PR:     #{}", pr);
         } else {
