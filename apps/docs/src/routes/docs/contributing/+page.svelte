@@ -135,7 +135,21 @@ npm run build      # production build`}</CodeBlock>
   creates a GitHub release when <code>giffstack</code> publishes.
 </p>
 
-<p>To cut a release: bump the version in the relevant <code>Cargo.toml</code>(s), commit, push to <code>main</code>. CI publishes.</p>
+<p>The publish job is scoped to a GitHub environment named <code>crates-io</code>. Setup:</p>
+
+<ol>
+  <li>Repo <strong>Settings → Environments → New environment</strong>, name it <code>crates-io</code>.</li>
+  <li>Add a secret <code>CARGO_REGISTRY_TOKEN</code> to that environment (token from <a href="https://crates.io/me" target="_blank" rel="noopener">crates.io/me</a>).</li>
+  <li>(Optional but recommended) under "Deployment branches" restrict to <code>main</code>, and tick "Required reviewers" with one or more maintainers.</li>
+</ol>
+
+<p>
+  With reviewers enabled, every push to <code>main</code> that bumps a version pauses the workflow
+  with an "Approve deployment" prompt before the secret is injected and <code>cargo publish</code>
+  runs — a manual gate against accidental publishes.
+</p>
+
+<p>To cut a release: bump the version in the relevant <code>Cargo.toml</code>(s), commit, push to <code>main</code>, approve the deployment.</p>
 
 <h2>What we look for in reviews</h2>
 

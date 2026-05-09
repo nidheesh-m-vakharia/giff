@@ -27,6 +27,12 @@ jobs:
   publish:
     name: Publish to crates.io
     runs-on: ubuntu-latest
+    # Scoped to the `crates-io` GitHub environment. The CARGO_REGISTRY_TOKEN secret lives
+    # there (not as a repo secret), and the environment can be configured with required
+    # reviewers + branch protection in Settings → Environments. With reviewers configured,
+    # this job pauses on every run waiting for an approval click before the secret is
+    # injected — a manual gate against accidental publishes.
+    environment: crates-io
     permissions:
       contents: write # for tagging the release commit
     steps:
