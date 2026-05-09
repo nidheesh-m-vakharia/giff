@@ -61,12 +61,16 @@ pub fn run() -> Result<()> {
     println!("opening browser…");
     println!("press Ctrl-C to stop");
 
-    // Best-effort browser launch. Use `that_detached` rather than `that` — the latter
-    // waits for the spawned `xdg-open` / `open` / `start` process to exit, which blocks
-    // the server's accept loop and on headless Linux (CI) hangs until the timeout.
-    // Detached double-forks on Unix and returns immediately; the user's browser opens
-    // in parallel with the server starting to accept connections.
-    let _ = open::that_detached(&branded);
+    // Best-effort browser launch on a side thread. Even `that_detached` does a
+    // fork+exec synchronously before returning, and on resource-constrained CI
+    // runners that's been measured at >2s — long enough for the kernel to queue
+    // the test's connection while tiny_http's accept worker hasn't started yet.
+    // Spawning the launch lets the main thread reach `Server::from_listener`
+    // immediately, so accepts begin the moment the OS accepts the SYN.
+    let branded_for_open = branded.clone();
+    std::thread::spawn(move || {
+        let _ = open::that_detached(&branded_for_open);
+    });
 
     let server =
         Server::from_listener(listener, None).map_err(|e| anyhow::anyhow!("server: {}", e))?;
