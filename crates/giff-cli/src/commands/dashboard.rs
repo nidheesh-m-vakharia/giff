@@ -61,9 +61,12 @@ pub fn run() -> Result<()> {
     println!("opening browser…");
     println!("press Ctrl-C to stop");
 
-    // Best-effort browser launch. Failing to open isn't fatal — the user can copy the
-    // URL manually. `open::that` returns the child's exit status; ignore it.
-    let _ = open::that(&branded);
+    // Best-effort browser launch. Use `that_detached` rather than `that` — the latter
+    // waits for the spawned `xdg-open` / `open` / `start` process to exit, which blocks
+    // the server's accept loop and on headless Linux (CI) hangs until the timeout.
+    // Detached double-forks on Unix and returns immediately; the user's browser opens
+    // in parallel with the server starting to accept connections.
+    let _ = open::that_detached(&branded);
 
     let server =
         Server::from_listener(listener, None).map_err(|e| anyhow::anyhow!("server: {}", e))?;
