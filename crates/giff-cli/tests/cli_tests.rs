@@ -309,6 +309,10 @@ fn giff_new_uses_config_trunk() {
         .unwrap()
         .current_dir(repo.path())
         .env("HOME", home.path())
+        // CI runners (Linux) often set XDG_CONFIG_HOME to a path outside $HOME, which makes
+        // `dirs::config_dir()` ignore the HOME override above. Pinning it to the same temp
+        // dir we just wrote into keeps the lookup deterministic across local + CI.
+        .env("XDG_CONFIG_HOME", home.path().join(".config"))
         .args(["new", "feat/custom-trunk"])
         .assert()
         .success();
