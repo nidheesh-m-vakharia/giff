@@ -63,6 +63,9 @@ pub enum Commands {
     },
     /// Show current frame, dirty state, and PR link
     Status,
+    /// Open the native desktop dashboard.
+    /// Requires the companion `giffstack-app` crate (install: `cargo install giffstack-app`).
+    Dashboard,
     /// Advanced stack operations
     Stack {
         #[command(subcommand)]

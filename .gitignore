@@ -8,8 +8,10 @@ build/
 .vercel/
 dist/
 
-# Tauri (generated capability schemas, build artifacts)
-apps/web/src-tauri/gen/
+# Embedded dashboard assets — populated by build.rs (stub) or CI (real SvelteKit
+# build). Stays out of git but ships in the published .crate via `include` in
+# crates/giff-cli/Cargo.toml.
+crates/giff-cli/dashboard-dist/
 
 # Per-user / local
 config/

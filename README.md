@@ -67,12 +67,20 @@ giff sync
 git rebase --continue
 giff sync --continue
 
+# Open the web dashboard in your default browser (PRs, diffs, comments, all yours)
+giff dashboard
+# → http://local.giffstack.com:51743 (or http://localhost:51743 if your DNS blocks it)
+
 # Advanced
 giff stack reorder          # interactive TUI reorder (↑↓ to move, Enter to confirm)
 giff stack squash <branch>  # squash a frame into the one below
 giff stack drop <branch>    # remove a frame and relink the one above
 giff stack land [--method merge|squash|rebase]  # merge bottom PR, promote rest
 ```
+
+`giff dashboard` runs an embedded HTTP server on a localhost port and opens your
+default browser to it. The same SvelteKit app that runs at giffstack.com — your
+GitHub token stays in `localStorage`, no data leaves your machine. Ctrl-C to stop.
 
 ## Configuration
 

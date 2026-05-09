@@ -61,6 +61,7 @@ fn run() -> Result<()> {
         Commands::Sync { r#continue } => commands::sync::run(r#continue),
         Commands::Log { all } => commands::log::run(all),
         Commands::Status => commands::status::run(),
+        Commands::Dashboard => commands::dashboard::run(),
         Commands::Stack { command } => match command {
             StackCommands::Reorder => commands::stack::reorder::run(),
             StackCommands::Squash { frame } => commands::stack::squash::run(&frame),

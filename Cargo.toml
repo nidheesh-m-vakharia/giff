@@ -6,6 +6,5 @@ members = [
     "crates/giff-cli",
     "crates/giff-wasm",
     "crates/giff-runner",
-    "apps/web/src-tauri",
 ]
 resolver = "2"

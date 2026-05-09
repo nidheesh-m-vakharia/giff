@@ -1,6 +1,0 @@
-# Tauri build output and per-machine artifacts
-target/
-gen/
-
-# Generated capability files (handled by Tauri at build time)
-# Keep src-tauri/capabilities/* if you author them by hand.

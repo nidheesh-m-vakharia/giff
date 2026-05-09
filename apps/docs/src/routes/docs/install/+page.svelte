@@ -66,9 +66,46 @@ export GITHUB_TOKEN=ghp_xxxxxxxxx   # or edit the config and paste it under [git
 
 <p>That removes the binary. Per-repo state in <code>.git/stacked.toml</code> and the pre-commit hook stay until you delete them manually.</p>
 
-<h2>2. The web dashboard (optional)</h2>
+<h2>2. The dashboard (built into the CLI)</h2>
 
-<p>A static SvelteKit SPA. Reads from the GitHub API directly with a token in <code>localStorage</code>. No backend.</p>
+<p>
+  No separate install. The SvelteKit dashboard ships embedded inside the
+  <code>giff</code> binary. Run it from any terminal:
+</p>
+
+<CodeBlock lang="bash">giff dashboard</CodeBlock>
+
+<p>This starts a tiny HTTP server on a localhost port and opens your default browser:</p>
+
+<CodeBlock lang="bash">{`giff dashboard listening on:
+  → http://local.giffstack.com:51743   (preferred — branded URL via DNS to 127.0.0.1)
+  → http://localhost:51743             (fallback if your DNS blocks the above)
+opening browser…
+press Ctrl-C to stop`}</CodeBlock>
+
+<p>
+  <code>local.giffstack.com</code> is a public DNS A record that points at
+  <code>127.0.0.1</code>. The browser does the lookup, hits loopback, and lands on the
+  local server — traffic never leaves your machine. We use the branded hostname so
+  cookies and <code>localStorage</code> stay isolated from anything else you have running on
+  bare <code>localhost</code>.
+</p>
+
+<Note>
+  ~5% of users hit DNS-rebinding protection (Pi-hole, OpenDNS Family Shield, some
+  routers) which strips public DNS records that resolve to private IPs. The fallback
+  <code>localhost</code> URL always works.
+</Note>
+
+<p>
+  The same dashboard that runs at <a href="https://giffstack.com" target="_blank" rel="noopener">giffstack.com</a> runs locally — your GitHub token lives in
+  <code>localStorage</code>, no data leaves your machine. First run sends you to
+  <code>/?settings=1</code>; paste your token and pick a repo.
+</p>
+
+<h2>3. Hosting the dashboard yourself (optional)</h2>
+
+<p>Same SvelteKit SPA. No backend. Useful if your team wants a shared URL.</p>
 
 <CodeBlock lang="bash">{`cd apps/web
 npm install
@@ -78,9 +115,9 @@ npm run dev      # http://localhost:5173`}</CodeBlock>
 
 <CodeBlock lang="bash">{`npm run build    # output in apps/web/build/`}</CodeBlock>
 
-<p>Serve <code>apps/web/build/</code> from any static host (Netlify, Vercel, S3, your own nginx). The first visit sends you to <code>/?settings=1</code>; paste your token and pick a repo from the dropdown (it lists every repo your token can see).</p>
+<p>Serve <code>apps/web/build/</code> from any static host (Netlify, Vercel, S3, your own nginx). Each visitor pastes their own token; tokens stay in their browser's <code>localStorage</code>.</p>
 
-<h2>3. The runner (optional)</h2>
+<h2>4. The runner (optional)</h2>
 
 <p>A Rust service that polls GitHub, ingests webhooks, retargets PR bases when stacks merge, and (when configured per-repo) auto-merges approved bottom frames.</p>
 
@@ -96,14 +133,14 @@ curl http://localhost:8080/healthz   # → ok`}</CodeBlock>
 
 <h2>Updating</h2>
 
-<CodeBlock lang="bash">{`# CLI (from crates.io)
+<CodeBlock lang="bash">{`# CLI + embedded dashboard (from crates.io)
 cargo install giffstack --force
 
 # CLI (from a local checkout)
 cd giff && git pull
 cargo install --path crates/giff-cli --force
 
-# Web
+# Hosted web dashboard
 cd apps/web && npm install && npm run build
 
 # Runner

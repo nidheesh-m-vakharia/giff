@@ -136,6 +136,20 @@ path:   main → feat/auth-base → feat/auth-tokens
 depth:  1 (children: 0)
 PR:     #43`}</CodeBlock>
 
+<h2 id="dashboard">giff dashboard</h2>
+
+<p>Open the web dashboard in your default browser. Starts an embedded HTTP server on a localhost port and serves the SvelteKit app baked into the <code>giff</code> binary.</p>
+
+<CodeBlock lang="bash">giff dashboard</CodeBlock>
+
+<CodeBlock>{`giff dashboard listening on:
+  → http://local.giffstack.com:51743   (preferred — branded URL via DNS to 127.0.0.1)
+  → http://localhost:51743             (fallback if your DNS blocks the above)
+opening browser…
+press Ctrl-C to stop`}</CodeBlock>
+
+<p>Same UI as <a href="https://giffstack.com" target="_blank" rel="noopener">giffstack.com</a>, your token in <code>localStorage</code>, no data leaves your machine. Ctrl-C in the terminal when you're done.</p>
+
 <h2 id="log">giff log</h2>
 
 <p>Tree view of the current repo's stacks. By default hides frames whose PR is closed or merged.</p>

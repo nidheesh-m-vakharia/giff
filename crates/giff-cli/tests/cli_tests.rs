@@ -1,3 +1,4 @@
+use assert_cmd::cargo::CommandCargoExt;
 use assert_cmd::Command;
 use std::process::Command as StdCommand;
 use tempfile::TempDir;
@@ -63,6 +64,84 @@ fn giff_help_exits_zero() {
         .arg("--help")
         .assert()
         .success();
+}
+
+#[test]
+fn giff_dashboard_serves_embedded_assets() {
+    // Spawn `giff dashboard`, give it a moment to bind, then GET / and confirm the
+    // server responds with HTML. We connect by IP (127.0.0.1) rather than the
+    // branded hostname so the test doesn't require working DNS.
+    use std::io::{Read, Write};
+    use std::net::TcpStream;
+    use std::time::{Duration, Instant};
+
+    let mut child = std::process::Command::cargo_bin("giff")
+        .unwrap()
+        .arg("dashboard")
+        // Headless CI has no default browser; `open` will likely fail silently,
+        // which is fine — the server still binds and serves.
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    // Read the listening port from stdout. The server prints lines like:
+    //   →  http://localhost:51743             (fallback ...)
+    let stdout = child.stdout.take().unwrap();
+    let port = read_port_from_stdout(stdout);
+
+    // Quick TCP-level GET / — small enough that we don't need an HTTP client dep.
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let body = loop {
+        if Instant::now() > deadline {
+            let _ = child.kill();
+            panic!("dashboard server didn't accept connection within 5s");
+        }
+        match TcpStream::connect(("127.0.0.1", port)) {
+            Ok(mut s) => {
+                s.set_read_timeout(Some(Duration::from_secs(2))).unwrap();
+                s.write_all(b"GET / HTTP/1.0\r\nHost: 127.0.0.1\r\n\r\n")
+                    .unwrap();
+                let mut buf = String::new();
+                let _ = s.read_to_string(&mut buf);
+                break buf;
+            }
+            Err(_) => std::thread::sleep(Duration::from_millis(50)),
+        }
+    };
+
+    let _ = child.kill();
+    let _ = child.wait();
+
+    assert!(
+        body.starts_with("HTTP/"),
+        "expected HTTP response, got:\n{}",
+        body
+    );
+    assert!(body.contains("200"), "expected 200 OK, got:\n{}", body);
+    // Either the real SvelteKit build or the build.rs stub starts with `<!doctype html`.
+    assert!(
+        body.to_lowercase().contains("<!doctype html"),
+        "expected HTML body, got:\n{}",
+        body
+    );
+}
+
+fn read_port_from_stdout(stdout: std::process::ChildStdout) -> u16 {
+    use std::io::{BufRead, BufReader};
+    let reader = BufReader::new(stdout);
+    for line in reader.lines().flatten() {
+        // Match the localhost line specifically — it's the most reliable parse target
+        // since the branded line might be removed/changed in future formatting.
+        if let Some(idx) = line.find("http://localhost:") {
+            let tail = &line[idx + "http://localhost:".len()..];
+            let port_str: String = tail.chars().take_while(|c| c.is_ascii_digit()).collect();
+            if let Ok(p) = port_str.parse::<u16>() {
+                return p;
+            }
+        }
+    }
+    panic!("never saw a localhost:<port> line in dashboard stdout");
 }
 
 #[test]

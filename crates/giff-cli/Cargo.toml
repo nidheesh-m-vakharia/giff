@@ -13,6 +13,17 @@ categories = ["command-line-utilities", "development-tools"]
 
 # Binary name kept as `giff` so the install command (`cargo install giffstack`)
 # differs from the runtime command (`giff`) — matching how `ripgrep` ships `rg`.
+# The published .crate must contain dashboard-dist/ (which is gitignored). Cargo's
+# default rules already include all paths under the crate root unless excluded, so
+# we list explicitly to nail down what does and doesn't land in the published crate.
+include = [
+    "src/**/*",
+    "tests/**/*",
+    "build.rs",
+    "Cargo.toml",
+    "dashboard-dist/**/*",
+]
+
 [[bin]]
 name = "giff"
 path = "src/main.rs"
@@ -32,6 +43,16 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
 uuid = { version = "1", features = ["v4"] }
+
+# Dashboard server (`giff dashboard`):
+# - tiny_http: sync HTTP server, ~3 deps, no async runtime
+# - include_dir: compile-time directory embedding for the SvelteKit build
+# - mime_guess: file extension → Content-Type
+# - open: launch the user's default browser cross-platform
+tiny_http = "0.12"
+include_dir = "0.7"
+mime_guess = "2"
+open = "5"
 
 [dev-dependencies]
 assert_cmd = "2"

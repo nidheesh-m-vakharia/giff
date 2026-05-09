@@ -82,10 +82,8 @@
 </script>
 
 <aside class="flex w-72 shrink-0 flex-col border-r bg-background">
-  <!-- Brand + repo switcher. The brand row doubles as a drag handle in Tauri so users
-       can move the window from the sidebar's top. The pt-9 leaves clear space for the
-       macOS traffic lights that overlay the window in titleBarStyle: Overlay mode. -->
-  <div data-tauri-drag-region class="px-4 pt-9 pb-3 space-y-3">
+  <!-- Brand + repo switcher. -->
+  <div class="px-4 pt-6 pb-3 space-y-3">
     <a
       href="/"
       class="flex items-center gap-3 font-semibold tracking-tight"

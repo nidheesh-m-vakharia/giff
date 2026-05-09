@@ -17,7 +17,12 @@
 
 set -euo pipefail
 
-CRATE="${1:?usage: publish-if-new.sh <crate-name>}"
+CRATE="${1:?usage: publish-if-new.sh <crate-name> [extra cargo publish args...]}"
+shift
+# Any remaining args are forwarded to `cargo publish` — used for `--allow-dirty` when
+# publishing giffstack-app, which has CI-generated frontend-dist/ files that aren't in
+# git but need to be in the .crate.
+EXTRA_ARGS=("$@")
 
 # Local version. cargo metadata is the canonical source.
 LOCAL_VERSION=$(cargo metadata --no-deps --format-version=1 \
@@ -39,7 +44,9 @@ if [[ "${LOCAL_VERSION}" == "${PUBLISHED_VERSION}" ]]; then
   echo "  → already on crates.io; skipping."
 else
   echo "  → publishing ${CRATE} ${LOCAL_VERSION} ..."
-  cargo publish -p "${CRATE}" --token "${CARGO_REGISTRY_TOKEN}"
+  # `${arr[@]+...}` guards against the empty-array-under-set-u trap on older bashes
+  # (e.g. macOS's bash 3.2). On CI's modern bash this is identical to "${EXTRA_ARGS[@]}".
+  cargo publish -p "${CRATE}" --token "${CARGO_REGISTRY_TOKEN}" ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
   PUBLISHED_THIS_RUN=true
 fi
 
